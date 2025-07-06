@@ -60,7 +60,7 @@ jobs:
           fi
 
           # フィーチャーブランチの命名をチェック
-          if [[ "$BRANCH_NAME" =~ ^feature/.+ ]]; then
+          if echo "$BRANCH_NAME" | grep -E "^feature/.+" > /dev/null; then
             echo "✅ フィーチャーブランチの命名が正しいです"
           elif [ "$BRANCH_NAME" != "main" ] && [ "$BRANCH_NAME" != "develop" ]; then
             echo "⚠️ 警告: ブランチ名がfeature/*パターンに従っていません"

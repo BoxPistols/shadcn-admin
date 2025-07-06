@@ -36,7 +36,7 @@ jobs:
             fi
 
             # フィーチャーブランチかどうかをチェック
-            if [[ "${{ github.event.pull_request.head.ref }}" =~ ^feature/.+ ]]; then
+            if echo "${{ github.event.pull_request.head.ref }}" | grep -E "^feature/.+" > /dev/null; then
               echo "✅ フィーチャーブランチのPRは受け入れ可能です"
             else
               echo "⚠️ 警告: アップストリームへの非フィーチャーブランチPRです"
@@ -55,7 +55,7 @@ jobs:
           echo "PRタイトル: $PR_TITLE"
 
           # 慣例的なコミット形式をチェック
-          if [[ "$PR_TITLE" =~ ^(feat|fix|docs|style|refactor|test|chore)(\(.+\))?: .+ ]]; then
+          if echo "$PR_TITLE" | grep -E "^(feat|fix|docs|style|refactor|test|chore)(\(.+\))?: .+" > /dev/null; then
             echo "✅ PRタイトルは慣例的なコミット形式に従っています"
           else
             echo "⚠️ 警告: PRタイトルが慣例的なコミット形式に従っていません"
