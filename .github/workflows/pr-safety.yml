@@ -1,0 +1,92 @@
+name: PR安全性ガード
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  pr-safety-check:
+    runs-on: ubuntu-latest
+    name: PR安全性検証
+
+    steps:
+      - name: コードをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: PRコンテキストを検証
+        run: |
+          echo "🔍 PRコンテキストを検証しています..."
+          echo "PRベースリポジトリ: ${{ github.event.pull_request.base.repo.full_name }}"
+          echo "PRヘッドリポジトリ: ${{ github.event.pull_request.head.repo.full_name }}"
+          echo "PR作成者: ${{ github.event.pull_request.user.login }}"
+          echo "PRベースブランチ: ${{ github.event.pull_request.base.ref }}"
+          echo "PRヘッドブランチ: ${{ github.event.pull_request.head.ref }}"
+
+          # フォークからアップストリームへのPRかどうかをチェック
+          if [ "${{ github.event.pull_request.base.repo.full_name }}" = "satnaing/shadcn-admin" ]; then
+            echo "⚠️ これはアップストリームリポジトリへのPRです"
+            echo "🔍 意図的なものかどうか検証しています..."
+
+            # 正しいフォークからのPRかどうかをチェック
+            if [ "${{ github.event.pull_request.head.repo.full_name }}" = "BoxPistols/shadcn-admin" ]; then
+              echo "✅ 正しいフォーク（BoxPistols/shadcn-admin）からのPRです"
+            else
+              echo "❌ 予期しないリポジトリからのPRです"
+              exit 1
+            fi
+
+            # フィーチャーブランチかどうかをチェック
+            if echo "${{ github.event.pull_request.head.ref }}" | grep -E "^feature/.+" > /dev/null; then
+              echo "✅ フィーチャーブランチのPRは受け入れ可能です"
+            else
+              echo "⚠️ 警告: アップストリームへの非フィーチャーブランチPRです"
+            fi
+          else
+            echo "✅ フォーク内の内部PRです"
+          fi
+
+      - name: PRタイトルと説明をチェック
+        run: |
+          echo "🔍 PRタイトルと説明をチェックしています..."
+
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_BODY="${{ github.event.pull_request.body }}"
+
+          echo "PRタイトル: $PR_TITLE"
+
+          # 慣例的なコミット形式をチェック
+          if echo "$PR_TITLE" | grep -E "^(feat|fix|docs|style|refactor|test|chore)(\(.+\))?: .+" > /dev/null; then
+            echo "✅ PRタイトルは慣例的なコミット形式に従っています"
+          else
+            echo "⚠️ 警告: PRタイトルが慣例的なコミット形式に従っていません"
+            echo "💡 推奨形式: feat: 説明 または fix: 説明"
+          fi
+
+          # PRに説明があるかチェック
+          if [ -n "$PR_BODY" ]; then
+            echo "✅ PRに説明があります"
+          else
+            echo "⚠️ 警告: PRに説明がありません"
+          fi
+
+      - name: ブランチ権限を検証
+        run: |
+          echo "🔍 ブランチ権限を検証しています..."
+
+          # アップストリームのmain/developへのPRの場合、追加検証を行う
+          if [ "${{ github.event.pull_request.base.repo.full_name }}" = "satnaing/shadcn-admin" ]; then
+            BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
+
+            if [ "$BASE_BRANCH" = "main" ] || [ "$BASE_BRANCH" = "develop" ]; then
+              echo "⚠️ アップストリームの保護されたブランチ ($BASE_BRANCH) へのPRです"
+              echo "🔍 これは慎重なレビューが必要です"
+            fi
+          fi
+
+      - name: 概要
+        run: |
+          echo "📋 PR安全性チェック概要:"
+          echo "✅ リポジトリコンテキストが検証されました"
+          echo "✅ ブランチ権限がチェックされました"
+          echo "✅ PR形式が検証されました"
+          echo "🎉 すべての安全性チェックが完了しました！"
