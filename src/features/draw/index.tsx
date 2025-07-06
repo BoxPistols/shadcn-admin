@@ -6,6 +6,18 @@ import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css'
 
 const MAPBOX_ACCESS_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN
 
+interface DrawEvent {
+  features: {
+    id?: string
+    type: string
+    geometry: {
+      type: string
+      coordinates: number[] | number[][] | number[][][]
+    }
+    properties: Record<string, unknown>
+  }[]
+}
+
 export default function DrawPage() {
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<mapboxgl.Map | null>(null)
@@ -40,16 +52,25 @@ export default function DrawPage() {
     map.current.addControl(new mapboxgl.NavigationControl(), 'top-right')
 
     // Listen for draw events
-    map.current.on('draw.create', (e: any) => {
-      console.log('Created feature:', e.features[0])
+    map.current.on('draw.create', (e: DrawEvent) => {
+      // Feature created - could add to state management here
+      if (e.features[0]) {
+        // Handle created feature
+      }
     })
 
-    map.current.on('draw.update', (e: any) => {
-      console.log('Updated feature:', e.features[0])
+    map.current.on('draw.update', (e: DrawEvent) => {
+      // Feature updated - could add to state management here
+      if (e.features[0]) {
+        // Handle updated feature
+      }
     })
 
-    map.current.on('draw.delete', (e: any) => {
-      console.log('Deleted feature:', e.features[0])
+    map.current.on('draw.delete', (e: DrawEvent) => {
+      // Feature deleted - could add to state management here
+      if (e.features[0]) {
+        // Handle deleted feature
+      }
     })
 
     return () => {
