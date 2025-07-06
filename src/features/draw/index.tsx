@@ -93,7 +93,7 @@ export default function DrawPage() {
       <div className='min-h-0 flex-1'>
         <div
           ref={mapContainer}
-          data-testid="map-container"
+          data-testid='map-container'
           className='h-full w-full'
           style={{ minHeight: '500px' }}
         />
