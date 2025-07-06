@@ -66,14 +66,16 @@ jobs:
             echo "⚠️ 警告: ブランチ名がfeature/*パターンに従っていません"
           fi
 
+      - name: pnpmをインストール
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
       - name: Node.jsをセットアップ
         uses: actions/setup-node@v4
         with:
           node-version: "18"
           cache: "pnpm"
-
-      - name: pnpmをインストール
-        run: npm install -g pnpm
 
       - name: 依存関係をインストール
         run: pnpm install
