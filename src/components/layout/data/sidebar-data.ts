@@ -80,12 +80,12 @@ export const sidebarData: SidebarData = {
         },
         {
           title: 'Map',
-          url: '/_authenticated/map/',
+          url: '/map',
           icon: IconMap,
         },
         {
           title: 'Draw',
-          url: '/_authenticated/draw/',
+          url: '/draw',
           icon: IconPencil,
         },
         {
