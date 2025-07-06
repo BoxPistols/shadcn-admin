@@ -53,21 +53,21 @@ export default function DrawPage() {
 
     // Listen for draw events
     map.current.on('draw.create', (e: DrawEvent) => {
-      // Feature created - could add to state management here
+      // TODO: Implement state management for created features
       if (e.features[0]) {
         // Handle created feature
       }
     })
 
     map.current.on('draw.update', (e: DrawEvent) => {
-      // Feature updated - could add to state management here
+      // TODO: Implement state management for updated features
       if (e.features[0]) {
         // Handle updated feature
       }
     })
 
     map.current.on('draw.delete', (e: DrawEvent) => {
-      // Feature deleted - could add to state management here
+      // TODO: Implement state management for deleted features
       if (e.features[0]) {
         // Handle deleted feature
       }
@@ -93,6 +93,7 @@ export default function DrawPage() {
       <div className='min-h-0 flex-1'>
         <div
           ref={mapContainer}
+          data-testid="map-container"
           className='h-full w-full'
           style={{ minHeight: '500px' }}
         />
