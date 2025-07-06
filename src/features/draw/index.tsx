@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react'
-import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
-import 'mapbox-gl/dist/mapbox-gl.css'
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css'
+import mapboxgl from 'mapbox-gl'
+import 'mapbox-gl/dist/mapbox-gl.css'
 
 const MAPBOX_ACCESS_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN
 
@@ -32,7 +32,7 @@ export default function DrawPage() {
       container: mapContainer.current!,
       style: 'mapbox://styles/mapbox/streets-v12',
       center: [139.6917, 35.6895], // Tokyo coordinates
-      zoom: 13
+      zoom: 13,
     })
 
     // Initialize draw control
@@ -42,9 +42,9 @@ export default function DrawPage() {
         polygon: true,
         line_string: true,
         point: true,
-        trash: true
+        trash: true,
       },
-      defaultMode: 'draw_polygon'
+      defaultMode: 'draw_polygon',
     })
 
     // Add controls
@@ -83,17 +83,17 @@ export default function DrawPage() {
   }, [])
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="p-4 bg-background border-b">
-        <h2 className="text-lg font-semibold">Draw Tools</h2>
-        <p className="text-sm text-muted-foreground">
+    <div className='flex h-full flex-col'>
+      <div className='bg-background border-b p-4'>
+        <h2 className='text-lg font-semibold'>Draw Tools</h2>
+        <p className='text-muted-foreground text-sm'>
           Use the drawing tools to create polygons, lines, and points on the map
         </p>
       </div>
-      <div className="flex-1 min-h-0">
-        <div 
+      <div className='min-h-0 flex-1'>
+        <div
           ref={mapContainer}
-          className="w-full h-full"
+          className='h-full w-full'
           style={{ minHeight: '500px' }}
         />
       </div>
