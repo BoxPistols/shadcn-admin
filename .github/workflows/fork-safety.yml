@@ -1,0 +1,92 @@
+name: フォーク安全性チェック
+
+on:
+  push:
+    branches: [main, develop, "feature/*"]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  safety-check:
+    runs-on: ubuntu-latest
+    name: リポジトリ安全性検証
+
+    steps:
+      - name: コードをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: リポジトリコンテキストを検証
+        run: |
+          echo "🔍 リポジトリコンテキストを検証しています..."
+          echo "リポジトリ: ${{ github.repository }}"
+          echo "リポジトリ所有者: ${{ github.repository_owner }}"
+          echo "アクター: ${{ github.actor }}"
+
+          # 正しいフォークにいることを確認
+          if [ "${{ github.repository }}" != "BoxPistols/shadcn-admin" ]; then
+            echo "❌ エラー: このワークフローはBoxPistols/shadcn-adminでのみ実行されるべきです"
+            echo "現在のリポジトリ: ${{ github.repository }}"
+            exit 1
+          fi
+
+          echo "✅ リポジトリ検証が通過しました"
+
+      - name: アップストリーム参照をチェック
+        run: |
+          echo "🔍 アップストリーム参照をチェックしています..."
+
+          # ワークフローファイルが不正にアップストリームを参照していないかチェック
+          if grep -r "satnaing/shadcn-admin" .github/workflows/ 2>/dev/null; then
+            echo "⚠️ 警告: ワークフローでアップストリーム参照が見つかりました"
+          fi
+
+          # 利用可能な場合はgitリモートをチェック
+          if [ -d ".git" ]; then
+            echo "📋 Gitリモート:"
+            git remote -v || echo "gitリモートが見つかりません"
+          fi
+
+      - name: ブランチ安全性を検証
+        run: |
+          echo "🔍 ブランチ安全性を検証しています..."
+
+          BRANCH_NAME="${{ github.ref_name }}"
+          echo "現在のブランチ: $BRANCH_NAME"
+
+          # メインブランチへのプッシュかチェック
+          if [ "$BRANCH_NAME" = "main" ] && [ "${{ github.event_name }}" = "push" ]; then
+            echo "⚠️ 警告: メインブランチへのプッシュが検出されました"
+            echo "💡 これがアップストリーム同期によるものであり、直接開発でないことを確認してください"
+          fi
+
+          # フィーチャーブランチの命名をチェック
+          if [[ "$BRANCH_NAME" =~ ^feature/.+ ]]; then
+            echo "✅ フィーチャーブランチの命名が正しいです"
+          elif [ "$BRANCH_NAME" != "main" ] && [ "$BRANCH_NAME" != "develop" ]; then
+            echo "⚠️ 警告: ブランチ名がfeature/*パターンに従っていません"
+          fi
+
+      - name: Node.jsをセットアップ
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "pnpm"
+
+      - name: pnpmをインストール
+        run: npm install -g pnpm
+
+      - name: 依存関係をインストール
+        run: pnpm install
+
+      - name: リントを実行
+        run: pnpm run lint
+
+      - name: 型チェックを実行
+        run: pnpm run build
+
+      - name: 成功通知
+        run: |
+          echo "🎉 すべての安全性チェックが通過しました！"
+          echo "✅ リポジトリ: ${{ github.repository }}"
+          echo "✅ ブランチ: ${{ github.ref_name }}"
+          echo "✅ アクター: ${{ github.actor }}"
